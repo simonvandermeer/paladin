@@ -1,5 +1,7 @@
 # Paladin
 
+Hobby project for educational purposes where I am trying to train a reinforcement learning AI to play Crypt of the NecroDancer. Big chunk of this project is information retrieval and input into the application with some reverse engineering techniques.
+
 ## Running Crypt of the NecroDancer
 
 It's a lot easier to debug Paladin by running Crypt of the NecroDancer (CotN) in windowed mode. To run CotN in windowed mode through Steam set the launch options to the following:
