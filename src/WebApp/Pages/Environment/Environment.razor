@@ -1,0 +1,260 @@
+﻿@page "/environment/{EnvironmentId}"
+@namespace Paladin.WebApp.Pages.Environment
+@using Paladin.Api.Dto.Environments
+@using Paladin.Api.Sdk;
+@using Blazor.Extensions;
+@using Blazor.Extensions.Canvas;
+@using Blazor.Extensions.Canvas.Canvas2D;
+@using Microsoft.AspNetCore.SignalR.Client;
+@using Refit
+@using System.Net
+@implements IAsyncDisposable
+@inject IPaladinApiClient PaladinApiClient
+@inject NavigationManager NavigationManager
+
+<h1>Environment</h1>
+
+@if (EnvironmentFound)
+{
+	<div class="keyboard">
+		<div class="key key-filler"/>
+		<div class="key key-up">
+			<button @onclick="OnUpAsync">Up</button>
+		</div>
+		<div class="key key-filler" />
+		<div class="key key-left">
+			<button @onclick="OnLeftAsync">Left</button>
+		</div>
+		<div class="key key-down">
+			<button @onclick="OnDownAsync">Down</button>
+		</div>
+		<div class="key key-right">
+			<button @onclick="OnRightAsync">Right</button>
+		</div>
+	</div>
+}
+else
+{
+	<h3>Environment not found</h3>
+}
+
+<BECanvas Width="1000" Height="1000" @ref="_canvasReference"></BECanvas>
+
+@code {
+    private static readonly TimeSpan RefreshDelay = TimeSpan.FromSeconds(1);
+
+    private Canvas2DContext? _context;
+    private HubConnection? _hubConnection;
+
+    protected BECanvasComponent? _canvasReference;
+
+    [Parameter]
+    public string? EnvironmentId { get; set; }
+
+    public bool EnvironmentFound { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri($"/{nameof(EnvironmentHub)}"))
+            .Build();
+
+        _hubConnection.On("Refresh", () => RefreshAsync());
+
+        await _hubConnection.StartAsync();
+
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        _context = await _canvasReference.CreateCanvas2DAsync();
+
+        await RefreshAsync();
+
+#pragma warning disable CS4014 // Don't use 'await' so the timer can run asynchronously.
+        //RefreshTimerAsync();
+#pragma warning disable CS4014
+    }
+
+    private Task OnUpAsync()
+    {
+        return RunActionAsync(ActionType.MoveUp);
+    }
+
+    private Task OnDownAsync()
+    {
+        return RunActionAsync(ActionType.MoveDown);
+    }
+
+    private Task OnLeftAsync()
+    {
+        return RunActionAsync(ActionType.MoveLeft);
+    }
+
+    private Task OnRightAsync()
+    {
+        return RunActionAsync(ActionType.MoveRight);
+    }
+
+    private async Task RunActionAsync(ActionType actionType)
+    {
+        await PaladinApiClient.PostEnvironmentActionAsync(EnvironmentId, new EnvironmentAction(actionType));
+
+        await RefreshAsync();
+    }
+
+    private async Task RefreshTimerAsync(CancellationToken cancellationToken = default)
+    {
+        var id = EnvironmentId;
+
+        using var timer = new PeriodicTimer(RefreshDelay);
+
+        while (await timer.WaitForNextTickAsync(cancellationToken))
+        {
+            await RefreshAsync();
+
+            if (EnvironmentId != id || !ShouldRender())
+            {
+                break;
+            }
+        }
+    }
+
+    private async Task RefreshAsync()
+    {
+        if (_canvasReference == null)
+        {
+            throw new InvalidOperationException($"Property {nameof(_canvasReference)} must be initialized.");
+        }
+
+        if (_context == null)
+        {
+            throw new InvalidOperationException($"Property {nameof(_context)} must be initialized.");
+        }
+
+        const string Font = "Courier New";
+        const double FontAspectRatio = 0.423;
+
+        var environment = await PaladinApiClient.GetEnvironmentAsync(EnvironmentId);
+
+        await _context.BeginBatchAsync();
+        await _context.ClearRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
+
+        if (environment == null)
+        {
+            if (EnvironmentFound)
+            {
+                // Switch to not found.
+                EnvironmentFound = false;
+                StateHasChanged();
+            }
+
+            await _context.EndBatchAsync();
+
+			return;
+		}
+		else if (!EnvironmentFound)
+		{
+			// Switch to found.
+			EnvironmentFound = true;
+			StateHasChanged();
+		}
+
+		var tileWidth = _canvasReference.Width / environment.State.Map.Width;
+        var tileHeight = _canvasReference.Height / environment.State.Map.Height;
+        long tileX = 0;
+        long tileY = 0;
+
+        foreach (var row in environment.State.Map.Tiles)
+        {
+            foreach (var tile in row)
+            {
+                if (tile == null)
+                {
+                    tileX += tileWidth;
+                    continue;
+                }
+
+                var tileColor = tile.Type switch
+                {
+                    TileType.DirtWall => "brown",
+                    TileType.Exit => "yellow",
+                    TileType.Floor => "chocolate",
+                    TileType.Nothing => "black",
+                    TileType.StoneWall => "grey",
+                    TileType.UnbreakableWall => "darkgrey",
+                    TileType.Water => "blue",
+                    _ => throw new ArgumentException($"Unhandled tile type {tile.Type}.")
+                };
+
+                await _context.SetFillStyleAsync(tileColor);
+                await _context.FillRectAsync(tileX, tileY, tileWidth, tileHeight);
+
+                if (tile.Player != null)
+                {
+                    var characterWidth = tileHeight * FontAspectRatio;
+                    var characterPaddingSide = (tileWidth - characterWidth) / 2;
+                    var textY = tileY + tileHeight; // Add tileHeight to textY because it writes up.
+
+                    await _context.SetFontAsync($"{tileHeight}px {Font}");
+                    await _context.SetFillStyleAsync("red");
+                    await _context.StrokeTextAsync("P", tileX, textY);
+                }
+
+                if (tile.Enemy != null)
+                {
+                    var text = tile.Enemy.Type switch
+                    {
+                        EnemyType.Slime => "S",
+                        EnemyType.Zombie => "Z",
+                        EnemyType.Bat => "B",
+                        EnemyType.BatMiniboss => "Bo",
+                        _ => "E"
+                    };
+
+                    var characterWidth = tileHeight * FontAspectRatio;
+                    var characterPaddingSide = (tileWidth - characterWidth) / 2;
+                    var textY = tileY + tileHeight; // Add tileHeight to textY because it writes up.
+
+                    await _context.SetFontAsync($"{tileHeight}px {Font}");
+                    await _context.SetFillStyleAsync("red");
+                    await _context.StrokeTextAsync(text, tileX, textY);
+                }
+
+                if (tile.Trap != null)
+                {
+                    var text = "T";
+
+                    var characterWidth = tileHeight * FontAspectRatio;
+                    var characterPaddingSide = (tileWidth - characterWidth) / 2;
+                    var textY = tileY + tileHeight; // Add tileHeight to textY because it writes up.
+
+                    await _context.SetFontAsync($"{tileHeight}px {Font}");
+                    await _context.SetFillStyleAsync("red");
+                    await _context.StrokeTextAsync(text, tileX, textY);
+                }
+
+                tileX += tileWidth;
+            }
+
+            tileX = 0;
+            tileY += tileHeight;
+        }
+
+        await _context.EndBatchAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.DisposeAsync();
+        }
+    }
+}

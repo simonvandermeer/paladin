@@ -1,0 +1,31 @@
+# Visual Studio
+.vs
+
+# Visual Studio Code
+.vscode
+.ionide
+
+# Jetbrains Rider
+.idea/
+
+# Output and build files.
+bin/
+obj/
+build/
+out/
+puml_out/
+Release/
+
+# User files
+.DS_Store
+*.csproj.user
+launchSettings.json
+/src/TestResults
+/src/Application.StorageApi/Storage/Redis/Scripts
+
+# Logs
+logs/
+
+# Generated files
+Generated/
+wwwroot/

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>Paladin.Interop</AssemblyName>
+    <RootNamespace>Paladin.Interop</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <Target Name="protogen" BeforeTargets="BeforeBuild">
+    <Exec Command="dotnet protogen *.proto --proto_path=$(SolutionDir)/IpcProtocol --csharp_out=$(ProjectDir)/Ipc/Models/Generated" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="protobuf-net" Version="3.0.101" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,74 @@
+﻿table .tile-container {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td .tile {
+    width: 50%;
+    padding-bottom: 50%;
+    display: inline-block;
+}
+
+td .tile-content {
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+td .tile-content-empty {
+    background: black;
+}
+
+td .tile-content-unbreakable-wall {
+    background: gold;
+}
+
+td .tile-content-stone-wall {
+    background: grey;
+}
+
+td .tile-content-dirt-wall {
+    background: brown;
+}
+
+td .tile-content-floor {
+    background: chocolate;
+}
+
+td .tile-content-exit {
+    background: red;
+}
+
+td .tile-content-water {
+    background: blue;
+}
+
+.keyboard {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    width: 190px;
+}
+
+.key {
+    width: 33%;
+    text-align: center;
+}
+
+.key-filler {
+}
+
+.key-up {
+    padding-bottom: 10px;
+}
+
+.key-left {
+}
+
+.key-down {
+}
+
+.key-right {
+}

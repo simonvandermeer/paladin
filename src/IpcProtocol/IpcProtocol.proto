@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package IpcProtocol;
+
+message Move {
+    int32 entity_address = 1;
+    int32 x_offset = 2;
+    int32 y_offset = 3;
+}
