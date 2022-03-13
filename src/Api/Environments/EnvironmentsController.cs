@@ -16,9 +16,9 @@ public class EnvironmentsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Environment>> PostAsync(NewEnvironment newEnvironment)
+    public async Task<ActionResult<Environment>> PostAsync(NewEnvironmentOptions options)
     {
-        var environment = await _environmentService.StartNewEnvironmentAsync(newEnvironment);
+        var environment = await _environmentService.StartNewEnvironmentAsync(options);
 
         if (environment == null)
         {

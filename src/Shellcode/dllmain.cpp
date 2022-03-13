@@ -179,15 +179,16 @@ DWORD WINAPI ClientLoop(LPVOID lpParam)
     return 0;
 }
 
-void Move(void* entityAddress, int8_t xOffset, int8_t yOffset)
+void Move(void* entityAddress, int32_t xOffset, int32_t yOffset)
 {
-    typedef void __fastcall moveDef(void* entityAddress, void* dummy, int8_t xOffset, int8_t yOffset);
-    constexpr int vTableOffset = 0x180;
-
-    auto vTableAddress = *(int*)entityAddress;
-
-    moveDef* move = (moveDef*)(vTableAddress + vTableOffset);
-    move(entityAddress, nullptr, xOffset, yOffset);
+    __asm
+    {
+        mov ecx,entityAddress
+        mov eax,[ecx]
+        push yOffset
+        push xOffset
+        call [eax+0x180]
+    }
 }
 
 void HandleMessage(const char (& const message)[512], DWORD messageSize)
@@ -213,8 +214,6 @@ void HandleMessage(const char (& const message)[512], DWORD messageSize)
 
     if (moveAction.ParseFromArray(message, messageSize))
     {
-        MessageBox(nullptr, std::format(L"Found: {}, {}, {}", (void*)moveAction.entity_address(), moveAction.x_offset(), moveAction.y_offset()).c_str(), L"Paladin", MB_OK);
-
         Move((void*)moveAction.entity_address(), moveAction.x_offset(), moveAction.y_offset());
     }
     else

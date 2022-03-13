@@ -36,6 +36,7 @@
 else
 {
 	<h3>Environment not found</h3>
+	<button @onclick="OnCreatePhysicalEnvironmentAsync">Create physical environment</button>
 }
 
 <BECanvas Width="1000" Height="1000" @ref="_canvasReference"></BECanvas>
@@ -102,11 +103,28 @@ else
         return RunActionAsync(ActionType.MoveRight);
     }
 
+    private Task OnCreatePhysicalEnvironmentAsync()
+    {
+        return CreatePhysicalEnvironmentAsync();
+    }
+
     private async Task RunActionAsync(ActionType actionType)
     {
         await PaladinApiClient.PostEnvironmentActionAsync(EnvironmentId, new EnvironmentAction(actionType));
 
         await RefreshAsync();
+    }
+
+    private async Task CreatePhysicalEnvironmentAsync()
+    {
+        var options = new NewEnvironmentOptions
+        {
+            Simulated = false
+        };
+
+        var environment = await PaladinApiClient.PostEnvironmentAsync(options);
+
+        NavigationManager.NavigateTo($"/environment/{environment.Id}");
     }
 
     private async Task RefreshTimerAsync(CancellationToken cancellationToken = default)

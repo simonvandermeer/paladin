@@ -11,6 +11,9 @@ internal interface IPaladinApiContract
     [Get("/api/environments/{environmentId}")]
     public Task<Environment?> GetEnvironmentAsync(string environmentId);
 
+    [Post("/api/environments")]
+    public Task<Environment> PostEnvironmentAsync([Body] NewEnvironmentOptions options);
+
     [Post("/api/environments/{environmentId}/action")]
     public Task PostEnvironmentActionAsync(string environmentId, [Body] EnvironmentAction action);
 }

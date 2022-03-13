@@ -1,4 +1,6 @@
-﻿namespace Paladin.Api.Environments;
+﻿using Paladin.Api.Dto.Environments;
+
+namespace Paladin.Api.Environments;
 
 public class EnvironmentService
 {
@@ -12,7 +14,7 @@ public class EnvironmentService
         _simulatedEnvironmentsRepository = simulatedEnvironmentsRepository;
     }
 
-    public async Task<IEnvironment?> StartNewEnvironmentAsync(NewEnvironment options)
+    public async Task<IEnvironment?> StartNewEnvironmentAsync(NewEnvironmentOptions options)
     {
         if (options.Simulated)
         {

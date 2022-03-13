@@ -11,7 +11,7 @@ namespace Paladin.Interop
     public class GameProxy
     {
         private const string ProcessName = "NecroDancer";
-        private const string ShellcodeDllPath = @"C:/shared/Default/projects/paladin/src/Shellcode/Release/PaladinShellcode.dll";
+        private const string ShellcodeDllPath = @"C:/Projects/paladin/src/Shellcode/Release/PaladinShellcode.dll";
         private const string CryptOfTheNecroDancerPath = @"C:\Program Files (x86)\Steam\steamapps\common\Crypt of the NecroDancer\NecroDancer.exe";
 
         public static GameProxy Attach()

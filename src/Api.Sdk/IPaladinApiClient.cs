@@ -7,5 +7,6 @@ public interface IPaladinApiClient
 {
     public IAsyncEnumerable<Environment> GetEnvironmentsAsync();
     public Task<Environment?> GetEnvironmentAsync(string environmentId);
+    public Task<Environment> PostEnvironmentAsync(NewEnvironmentOptions options);
     public Task PostEnvironmentActionAsync(string environmentId, EnvironmentAction action);
 }

@@ -29,6 +29,11 @@ internal class PaladinApiClient : IPaladinApiClient
         }
     }
 
+    public Task<Environment> PostEnvironmentAsync(NewEnvironmentOptions options)
+    {
+        return _contract.PostEnvironmentAsync(options);
+    }
+
     public Task PostEnvironmentActionAsync(string environmentId, EnvironmentAction action)
     {
         return _contract.PostEnvironmentActionAsync(environmentId, action);
