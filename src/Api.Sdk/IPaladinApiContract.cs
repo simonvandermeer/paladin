@@ -6,7 +6,7 @@ namespace Paladin.Api.Sdk;
 internal interface IPaladinApiContract
 {
     [Get("/api/environments")]
-    public IAsyncEnumerable<Environment> GetEnvironmentsAsync();
+    public Task<IEnumerable<Environment>> GetEnvironmentsAsync();
 
     [Get("/api/environments/{environmentId}")]
     public Task<Environment?> GetEnvironmentAsync(string environmentId);

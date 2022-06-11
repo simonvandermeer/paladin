@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.HttpLogging;
 using Paladin.Api.Environments;
+using Paladin.Api.Environments.Simulated;
 
 var builder = WebApplication.CreateBuilder(args);
 
 ///////////////////////
 // Configure services.
 ///////////////////////
-builder.Services.AddSingleton<ISimulatedEnvironmentsRepository, InMemorySimulatedEnvironmentsRepository>();
+builder.Services.AddSingleton<ISimulatedEnvironmentRepository, InMemorySimulatedEnvironmentRepository>();
 builder.Services.AddSingleton<EnvironmentService>();
 
 builder.Services.AddControllers();

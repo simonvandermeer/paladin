@@ -12,9 +12,12 @@ internal class PaladinApiClient : IPaladinApiClient
         _contract = contract ?? throw new ArgumentNullException(nameof(contract));
     }
 
-    public IAsyncEnumerable<Environment> GetEnvironmentsAsync()
+    public async IAsyncEnumerable<Environment> GetEnvironmentsAsync()
     {
-        return _contract.GetEnvironmentsAsync();
+        foreach (var environment in await _contract.GetEnvironmentsAsync())
+        {
+            yield return environment;
+        }
     }
 
     public async Task<Environment?> GetEnvironmentAsync(string environmentId)

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace Paladin.WebApp.Pages.Environment;
+namespace Paladin.WebApp.Pages.Environments;
 
 public class EnvironmentHub : Hub
 {

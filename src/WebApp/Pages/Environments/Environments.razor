@@ -1,0 +1,86 @@
+﻿@page "/environments"
+@namespace Paladin.WebApp.Pages.Environments
+@using Paladin.Api.Dto.Environments
+@using Paladin.Api.Sdk;
+@using Blazor.Extensions;
+@using Blazor.Extensions.Canvas;
+@using Blazor.Extensions.Canvas.Canvas2D;
+@using Microsoft.AspNetCore.SignalR.Client;
+@using Refit
+@using System.Net
+@implements IAsyncDisposable
+@inject IPaladinApiClient PaladinApiClient
+@inject NavigationManager NavigationManager
+
+<h1>Environments</h1>
+
+<TableTemplate Items="_environments" OnRowClick="OnRowClick">
+    <TableHeader>
+        <th>Id</th>
+        <th>Simulated</th>
+    </TableHeader>
+    <RowTemplate Context="environment">
+        <td>@environment.Id</td>
+        <td>@environment.Simulated</td>
+    </RowTemplate>
+</TableTemplate>
+
+<button @onclick="OnCreatePhysicalEnvironmentAsync">Create physical environment</button>
+<button @onclick="OnCreateSimulatedEnvironmentAsync">Create simulated environment</button>
+
+@code {
+    private List<Api.Dto.Environments.Environment> _environments;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshTableAsync();
+    }
+
+    private async Task RefreshTableAsync()
+    {
+        _environments = new List<Api.Dto.Environments.Environment>();
+
+        await foreach(var environment in PaladinApiClient.GetEnvironmentsAsync())
+        {
+            AddEnvironment(environment);          
+        }
+    }
+
+    private void AddEnvironment(Api.Dto.Environments.Environment environment)
+    {
+        _environments.Add(environment);
+        this.StateHasChanged();  
+    }
+
+    private Task OnCreatePhysicalEnvironmentAsync()
+    {
+        return CreateEnvironmentAsync(false);
+    }
+
+    private Task OnCreateSimulatedEnvironmentAsync()
+    {
+        return CreateEnvironmentAsync(true);
+    }
+
+    private void OnRowClick(Api.Dto.Environments.Environment environment)
+    {
+        NavigationManager.NavigateTo($"/environments/{environment.Id}");
+    }
+
+    public async Task CreateEnvironmentAsync(bool simulated)
+    {
+        var options = new NewEnvironmentOptions
+        {
+            Simulated = simulated
+        };
+
+        var environment = await PaladinApiClient.PostEnvironmentAsync(options);
+
+        AddEnvironment(environment);
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
+}

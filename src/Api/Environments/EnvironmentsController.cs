@@ -42,7 +42,7 @@ public class EnvironmentsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Environment?>> GetAsync([FromRoute] string id)
     {
-        var environment = await _environmentService.GetOrDefaultAsync(id);
+        var environment = await _environmentService.GetOrDefaultAsync(new EnvironmentId(id));
 
         if (environment == null)
         {
@@ -55,7 +55,7 @@ public class EnvironmentsController : ControllerBase
     [HttpPost("{id}/action")]
     public async Task<ActionResult> PostEnvironmentActionAsync([FromRoute] string id, EnvironmentAction2 action)
     {
-        var environment = await _environmentService.GetOrDefaultAsync(id);
+        var environment = await _environmentService.GetOrDefaultAsync(new EnvironmentId(id));
 
         if (environment == null)
         {
@@ -70,7 +70,7 @@ public class EnvironmentsController : ControllerBase
     [HttpPost("{id}/reset")]
     public async Task<ActionResult> PostResetAsync([FromRoute] string id)
     {
-        var environment = await _environmentService.GetOrDefaultAsync(id);
+        var environment = await _environmentService.GetOrDefaultAsync(new EnvironmentId(id));
 
         if (environment == null)
         {
@@ -85,7 +85,7 @@ public class EnvironmentsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAsync([FromRoute] string id)
     {
-        await _environmentService.DeleteAsync(id);
+        await _environmentService.DeleteAsync(new EnvironmentId(id));
 
         return NoContent();
     }

@@ -1,5 +1,5 @@
-﻿@page "/environment/{EnvironmentId}"
-@namespace Paladin.WebApp.Pages.Environment
+﻿@page "/environments/{EnvironmentId}"
+@namespace Paladin.WebApp.Pages.Environments
 @using Paladin.Api.Dto.Environments
 @using Paladin.Api.Sdk;
 @using Blazor.Extensions;
@@ -37,6 +37,7 @@ else
 {
 	<h3>Environment not found</h3>
 	<button @onclick="OnCreatePhysicalEnvironmentAsync">Create physical environment</button>
+	<button @onclick="OnCreateSimulatedEnvironmentAsync">Create simulated environment</button>
 }
 
 <BECanvas Width="1000" Height="1000" @ref="_canvasReference"></BECanvas>
@@ -103,11 +104,6 @@ else
         return RunActionAsync(ActionType.MoveRight);
     }
 
-    private Task OnCreatePhysicalEnvironmentAsync()
-    {
-        return CreatePhysicalEnvironmentAsync();
-    }
-
     private async Task RunActionAsync(ActionType actionType)
     {
         await PaladinApiClient.PostEnvironmentActionAsync(EnvironmentId, new EnvironmentAction(actionType));
@@ -115,16 +111,26 @@ else
         await RefreshAsync();
     }
 
-    private async Task CreatePhysicalEnvironmentAsync()
+    private Task OnCreatePhysicalEnvironmentAsync()
+    {
+        return CreateEnvironmentAsync(false);
+    }
+
+    private Task OnCreateSimulatedEnvironmentAsync()
+    {
+        return CreateEnvironmentAsync(true);
+    }
+
+    public async Task CreateEnvironmentAsync(bool simulated)
     {
         var options = new NewEnvironmentOptions
         {
-            Simulated = false
+            Simulated = simulated
         };
 
         var environment = await PaladinApiClient.PostEnvironmentAsync(options);
 
-        NavigationManager.NavigateTo($"/environment/{environment.Id}");
+        NavigationManager.NavigateTo($"/environments/{environment.Id}");
     }
 
     private async Task RefreshTimerAsync(CancellationToken cancellationToken = default)

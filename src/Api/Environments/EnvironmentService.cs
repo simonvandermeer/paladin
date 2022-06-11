@@ -1,15 +1,17 @@
 ﻿using Paladin.Api.Dto.Environments;
+using Paladin.Api.Environments.Physical;
+using Paladin.Api.Environments.Simulated;
 
 namespace Paladin.Api.Environments;
 
 public class EnvironmentService
 {
-    private readonly ISimulatedEnvironmentsRepository _simulatedEnvironmentsRepository;
+    private readonly ISimulatedEnvironmentRepository _simulatedEnvironmentsRepository;
 
     private readonly object _physicalEnvironmentLock = new object();
     private PhysicalEnvironment? _physicalEnvironment;
 
-    public EnvironmentService(ISimulatedEnvironmentsRepository simulatedEnvironmentsRepository)
+    public EnvironmentService(ISimulatedEnvironmentRepository simulatedEnvironmentsRepository)
     {
         _simulatedEnvironmentsRepository = simulatedEnvironmentsRepository;
     }
@@ -18,7 +20,10 @@ public class EnvironmentService
     {
         if (options.Simulated)
         {
-            var simulatedEnvironment = new SimulatedEnvironment();
+            var identity = await _simulatedEnvironmentsRepository.NextIdentityAsync();
+            var simulatedEnvironmentOptions = new SimulatedEnvironmentCreationOptions(identity, false);
+
+            var simulatedEnvironment = new SimulatedEnvironment(simulatedEnvironmentOptions);
             await _simulatedEnvironmentsRepository.SaveAsync(simulatedEnvironment);
 
             return simulatedEnvironment;
@@ -54,7 +59,7 @@ public class EnvironmentService
         }
     }
 
-    public async Task<IEnvironment?> GetOrDefaultAsync(string id)
+    public async Task<IEnvironment?> GetOrDefaultAsync(EnvironmentId id)
     {
         var simulatedEnvironment = await _simulatedEnvironmentsRepository.GetOrDefaultAsync(id);
 
@@ -80,7 +85,7 @@ public class EnvironmentService
         return default;
     }
 
-    public async Task DeleteAsync(string id)
+    public async Task DeleteAsync(EnvironmentId id)
     {
         var simulatedEnvironment = await _simulatedEnvironmentsRepository.GetOrDefaultAsync(id);
 

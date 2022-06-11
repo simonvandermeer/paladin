@@ -7,7 +7,8 @@ internal static class IEnvironmentExtensions
     public static Environment ToDto(this IEnvironment environment)
     {
         return new Environment(
-            environment.Id,
+            // TODO: Make work with converters.
+            environment.Id.Id,
             environment.Simulated,
             environment.State);
     }

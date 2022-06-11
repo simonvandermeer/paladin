@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.ResponseCompression;
 using Paladin.Api.Sdk;
-using Paladin.WebApp.Pages.Environment;
+using Paladin.WebApp.Pages.Environments;
 
 var builder = WebApplication.CreateBuilder(args);
 

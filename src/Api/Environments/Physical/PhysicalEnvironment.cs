@@ -1,7 +1,7 @@
 ﻿using Paladin.Api.Dto.Environments;
 using Paladin.Interop;
 
-namespace Paladin.Api.Environments;
+namespace Paladin.Api.Environments.Physical;
 
 public class PhysicalEnvironment : IEnvironment
 {
@@ -17,7 +17,7 @@ public class PhysicalEnvironment : IEnvironment
         _gameProxy = gameProxy;
     }
 
-    public string Id => "0";
+    public EnvironmentId Id => EnvironmentId.Physical;
     public bool Simulated => false;
     public EnvironmentState State
     {

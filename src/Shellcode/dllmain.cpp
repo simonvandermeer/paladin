@@ -15,16 +15,20 @@
 
 constexpr auto BufferSize = 512;
 
+uint32_t necroDancerModuleAddress = 0;
+
 void StartServer();
 DWORD WINAPI ServerLoop(LPVOID lpParam);
 DWORD WINAPI ClientLoop(LPVOID lpParam);
 void HandleMessage(const char(& const message)[512], DWORD messageSize);
+uint32_t GetNecroDancerModuleAddress();
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
+        necroDancerModuleAddress = GetNecroDancerModuleAddress();
         StartServer();
         //MessageBox(nullptr, L"Shellcode injected and ready.", L"Paladin", MB_OK);
         break;
@@ -179,6 +183,24 @@ DWORD WINAPI ClientLoop(LPVOID lpParam)
     return 0;
 }
 
+uint32_t GetNecroDancerModuleAddress()
+{
+    return (uint32_t)GetModuleHandle(L"NecroDancer.exe");
+}
+
+void Update()
+{
+    auto gameDelegatePtr = (uint32_t*)(necroDancerModuleAddress + 0x3BF9FC);
+    auto gameDelegateAddress = *gameDelegatePtr;
+
+    __asm
+    {
+        mov ecx,gameDelegateAddress
+        mov eax,[ecx]
+        call[eax+0x20]
+    }
+}
+
 void Move(void* entityAddress, int32_t xOffset, int32_t yOffset)
 {
     __asm
@@ -189,6 +211,8 @@ void Move(void* entityAddress, int32_t xOffset, int32_t yOffset)
         push xOffset
         call [eax+0x180]
     }
+
+    Update();
 }
 
 void HandleMessage(const char (& const message)[512], DWORD messageSize)
