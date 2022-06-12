@@ -1,4 +1,4 @@
-﻿namespace Paladin.Api.Dto.Environments;
+﻿namespace Paladin.CotNd;
 
 public class Map
 {

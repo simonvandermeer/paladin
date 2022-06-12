@@ -9,7 +9,7 @@ public class InMemorySimulatedEnvironmentRepository : ISimulatedEnvironmentRepos
         _environments = new Dictionary<EnvironmentId, SimulatedEnvironment>();
     }
 
-    public async IAsyncEnumerable<SimulatedEnvironment> GetAsync()
+    public async IAsyncEnumerable<SimulatedEnvironment> ListAsync()
     {
         foreach (var environment in _environments)
         {

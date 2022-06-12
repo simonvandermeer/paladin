@@ -18,6 +18,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Api.Dto\Api.Dto.csproj" />
+    <ProjectReference Include="..\CotNdSim\CotNdSim.csproj" />
+    <ProjectReference Include="..\CotNd\CotNd.csproj" />
     <ProjectReference Include="..\Interop\Interop.csproj" />
   </ItemGroup>
 

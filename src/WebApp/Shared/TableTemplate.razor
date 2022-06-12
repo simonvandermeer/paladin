@@ -5,15 +5,24 @@
     <thead>
         <tr>@TableHeader</tr>
     </thead>
-    <tbody class="table-body">
+    <tbody>
         @foreach (var item in Items)
         {
             if (RowTemplate is not null)
             {
-                <tr @onclick="() => OnRowClick?.Invoke(item)">
+                <tr class="data-row" @onclick="() => OnRowClick?.Invoke(item)">
                     @RowTemplate(item)
                 </tr>
             }
+        }
+
+        @if (OnAddItem is not null)
+        {
+            <tr @onclick="() => AddItem()">
+                <td colspan="100">
+                    <span class="oi oi-plus" aria-hidden="true"></span>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
@@ -28,6 +37,22 @@
     [Parameter]
     public Action<TItem>? OnRowClick { get; set; }
 
+    [Parameter]
+    public Func<TItem>? OnAddItem { get; set; }
+
     [Parameter, AllowNull]
     public IReadOnlyList<TItem> Items { get; set; }
+
+    private void AddItem()
+    {
+        if (OnAddItem == null)
+        {
+            return;
+        }
+
+        var newItem = OnAddItem();
+
+        Items = Items.Concat(new[] { newItem }).ToList();
+        this.StateHasChanged();  
+    }
 }

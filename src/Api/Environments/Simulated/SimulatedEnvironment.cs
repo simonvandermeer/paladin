@@ -6,14 +6,24 @@ public class SimulatedEnvironment : IEnvironment
 {
     public SimulatedEnvironment(SimulatedEnvironmentCreationOptions options)
     {
+        if (options.EnableFogOfWar)
+        {
+            throw new NotSupportedException("Fog of war is not yet supported.");
+        }
+
         Id = options.Id;
+        Map = options.Map;
     }
 
     public EnvironmentId Id { get; }
+    public CotNd.Map Map { get; }
 
     public bool Simulated => true;
 
-    public EnvironmentState State => new EnvironmentState(new Map { Width = 1, Height = 1, Tiles = new List<List<Tile>> { new List<Tile>() } });
+    public EnvironmentState GetState()
+    {
+        return new EnvironmentState(Map);
+    }
 
     public void RunAction(EnvironmentAction action)
     {

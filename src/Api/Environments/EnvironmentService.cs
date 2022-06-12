@@ -1,6 +1,7 @@
 ﻿using Paladin.Api.Dto.Environments;
 using Paladin.Api.Environments.Physical;
 using Paladin.Api.Environments.Simulated;
+using Paladin.CotNdSim;
 
 namespace Paladin.Api.Environments;
 
@@ -20,8 +21,9 @@ public class EnvironmentService
     {
         if (options.Simulated)
         {
+            var mapGenerator = new MapGenerator();
             var identity = await _simulatedEnvironmentsRepository.NextIdentityAsync();
-            var simulatedEnvironmentOptions = new SimulatedEnvironmentCreationOptions(identity, false);
+            var simulatedEnvironmentOptions = new SimulatedEnvironmentCreationOptions(identity, mapGenerator.GenerateSimpleMap(), false);
 
             var simulatedEnvironment = new SimulatedEnvironment(simulatedEnvironmentOptions);
             await _simulatedEnvironmentsRepository.SaveAsync(simulatedEnvironment);
@@ -38,7 +40,6 @@ public class EnvironmentService
             }
 
             _physicalEnvironment = PhysicalEnvironment.Create();
-            //_physicalEnvironment.RunAction(new Dto.Environments.Action { Type = Dto.Environments.ActionType.MoveRight });
         }
 
         return _physicalEnvironment;
@@ -51,7 +52,7 @@ public class EnvironmentService
             yield return _physicalEnvironment;
         }
 
-        var simulatedEnvironments = _simulatedEnvironmentsRepository.GetAsync();
+        var simulatedEnvironments = _simulatedEnvironmentsRepository.ListAsync();
 
         await foreach (var simulatedEnvironment in simulatedEnvironments)
         {

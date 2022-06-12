@@ -1,3 +1,5 @@
-﻿namespace Paladin.Api.Dto.Environments;
+﻿using Paladin.CotNd;
 
-public record EnvironmentState(Map Map);
+namespace Paladin.Api.Dto.Environments;
+
+public record EnvironmentState(Map? Map);

@@ -1,4 +1,4 @@
-﻿namespace Paladin.CotNdSimulated;
+﻿namespace Paladin.CotNd;
 
 public class Game
 {

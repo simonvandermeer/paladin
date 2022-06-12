@@ -1,4 +1,4 @@
-﻿.table-body tr:hover {
+﻿tr.data-row:hover {
     background-color: lightgray;
     cursor: pointer;
 }

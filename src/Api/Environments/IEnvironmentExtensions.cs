@@ -10,6 +10,6 @@ internal static class IEnvironmentExtensions
             // TODO: Make work with converters.
             environment.Id.Id,
             environment.Simulated,
-            environment.State);
+            environment.GetState());
     }
 }

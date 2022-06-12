@@ -1,18 +1,5 @@
-﻿namespace Paladin.Api.Environments.Simulated;
+﻿using Paladin.CotNd;
 
-public class SimulatedEnvironmentCreationOptions
-{
-    public SimulatedEnvironmentCreationOptions(EnvironmentId id, bool enableFogOfWar = true)
-    {
-        if (enableFogOfWar)
-        {
-            throw new NotSupportedException("Fog of war is not yet supported.");
-        }
+namespace Paladin.Api.Environments.Simulated;
 
-        Id = id;
-        FogOfWarEnabled = enableFogOfWar;
-    }
-
-    public EnvironmentId Id { get; }
-    public bool FogOfWarEnabled { get; }
-}
+public record SimulatedEnvironmentCreationOptions(EnvironmentId Id, Map Map, bool EnableFogOfWar = true);

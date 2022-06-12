@@ -6,6 +6,7 @@
 @using Blazor.Extensions.Canvas;
 @using Blazor.Extensions.Canvas.Canvas2D;
 @using Microsoft.AspNetCore.SignalR.Client;
+@using Paladin.CotNd
 @using Refit
 @using System.Net
 @implements IAsyncDisposable
@@ -162,9 +163,6 @@ else
             throw new InvalidOperationException($"Property {nameof(_context)} must be initialized.");
         }
 
-        const string Font = "Courier New";
-        const double FontAspectRatio = 0.423;
-
         var environment = await PaladinApiClient.GetEnvironmentAsync(EnvironmentId);
 
         await _context.BeginBatchAsync();
@@ -181,16 +179,29 @@ else
 
             await _context.EndBatchAsync();
 
-			return;
-		}
-		else if (!EnvironmentFound)
-		{
-			// Switch to found.
-			EnvironmentFound = true;
-			StateHasChanged();
-		}
+            return;
+        }
+        else if (!EnvironmentFound)
+        {
+            // Switch to found.
+            EnvironmentFound = true;
+            StateHasChanged();
+        }
 
-		var tileWidth = _canvasReference.Width / environment.State.Map.Width;
+        if (environment.State.Map != null)
+        {
+            await RenderMapAsync(environment);
+        }
+
+        await _context.EndBatchAsync();
+    }
+
+    private async Task RenderMapAsync(Api.Dto.Environments.Environment environment)
+    {
+        const string Font = "Courier New";
+        const double FontAspectRatio = 0.423;
+
+        var tileWidth = _canvasReference.Width / environment.State.Map.Width;
         var tileHeight = _canvasReference.Height / environment.State.Map.Height;
         long tileX = 0;
         long tileY = 0;
@@ -270,8 +281,6 @@ else
             tileX = 0;
             tileY += tileHeight;
         }
-
-        await _context.EndBatchAsync();
     }
 
     public async ValueTask DisposeAsync()
