@@ -15,7 +15,6 @@ internal class PaladinPipeClient
             client.Close();
             throw new AttachingFailedException($"Could not connect with shellcode pipe.");
         }
-        //client.ReadMode = PipeTransmissionMode.Message;
 
         return new PaladinPipeClient(client);
     }
@@ -27,15 +26,8 @@ internal class PaladinPipeClient
         _client = client;
     }
 
-    internal void Move(IntPtr entityAddr, int xOffset, int yOffset)
+    internal void Send<TMessage>(TMessage message)
     {
-        var message = new IpcProtocol.Move
-        {
-            EntityAddress = (int)entityAddr,
-            XOffset = xOffset,
-            YOffset = yOffset
-        };
-
         Serializer.Serialize(_client, message);
 
         _client.Flush();

@@ -75,10 +75,10 @@ public class GameProxy
         return new GameProxy(process, processHandle, pipeClient);
     }
 
-    private Process _process;
+    private readonly Process _process;
     private IntPtr _processHandle;
     private IntPtr _baseAddress;
-    private PaladinPipeClient _pipeClient;
+    private PaladinPipeClient? _pipeClient;
 
     private GameProxy(Process process, IntPtr processHandle, PaladinPipeClient pipeClient)
     {
@@ -111,7 +111,7 @@ public class GameProxy
 
     public void Close()
     {
-        _pipeClient.Close();
+        _pipeClient?.Close();
         _pipeClient = null;
         _baseAddress = IntPtr.Zero;
         _processHandle = IntPtr.Zero;
@@ -230,7 +230,13 @@ public class GameProxy
     {
         EnsureProcessConnection();
 
-        var playerAddr = Memory.ReadPointer(_processHandle, _baseAddress + 0x3BF584);
-        _pipeClient.Move(playerAddr, xOffset, yOffset);
+        var message = new IpcProtocol.Move
+        {
+            EntityAddress = (int)Memory.ReadPointer(_processHandle, _baseAddress + 0x3BF584),
+            XOffset = xOffset,
+            YOffset = yOffset
+        };
+
+        _pipeClient.Send(message);
     }
 }
