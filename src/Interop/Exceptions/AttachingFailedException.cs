@@ -1,9 +1,8 @@
-﻿namespace Paladin.Interop.Exceptions
+﻿namespace Paladin.Interop.Exceptions;
+
+public class AttachingFailedException : Exception
 {
-    public class AttachingFailedException : Exception
+    public AttachingFailedException(string message) : base(message)
     {
-        public AttachingFailedException(string message) : base(message)
-        {
-        }
     }
 }

@@ -20,7 +20,8 @@ uint32_t necroDancerModuleAddress = 0;
 void StartServer();
 DWORD WINAPI ServerLoop(LPVOID lpParam);
 DWORD WINAPI ClientLoop(LPVOID lpParam);
-void HandleMessage(const char(& const message)[512], DWORD messageSize);
+void HandleMessage(const char(& const message)[512], const DWORD messageSize);
+void LogMessage(const char (& const message)[512], const DWORD messageSize);
 uint32_t GetNecroDancerModuleAddress();
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
@@ -215,14 +216,27 @@ void Move(void* entityAddress, int32_t xOffset, int32_t yOffset)
     Update();
 }
 
-void HandleMessage(const char (& const message)[512], DWORD messageSize)
+void HandleMessage(const char (& const message)[512], const DWORD messageSize)
+{
+    LogMessage(message, messageSize);
+
+    IpcProtocol::Move moveAction;
+    if (moveAction.ParseFromArray(message, messageSize))
+    {
+        Move((void*)moveAction.entity_address(), moveAction.x_offset(), moveAction.y_offset());
+    }
+    else
+    {
+        MessageBox(nullptr, L"Paladin: Could not read action.", L"Paladin", MB_OK);
+    }
+}
+
+void LogMessage(const char (& const message)[512], const DWORD messageSize)
 {
     auto now = std::chrono::system_clock::now();
     auto nowString = std::format(L"{}", now);
     std::replace(nowString.begin(), nowString.end(), ':', 'T'); // Replace illegal file name char ':'. 
     auto filePath = std::format(L"C:/temp/paladin/messages/{}.txt", nowString);
-
-    IpcProtocol::Move moveAction;
 
     std::ofstream myfile(filePath);
     if (myfile.is_open())
@@ -234,14 +248,5 @@ void HandleMessage(const char (& const message)[512], DWORD messageSize)
     else
     {
         MessageBox(nullptr, std::format(L"Paladin: Could not open log file ({}).", errno).c_str(), L"Paladin", MB_OK);
-    }
-
-    if (moveAction.ParseFromArray(message, messageSize))
-    {
-        Move((void*)moveAction.entity_address(), moveAction.x_offset(), moveAction.y_offset());
-    }
-    else
-    {
-        MessageBox(nullptr, L"Paladin: Could not read action.", L"Paladin", MB_OK);
     }
 }

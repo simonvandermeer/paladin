@@ -1,21 +1,19 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
-namespace Paladin.Interop.Extensions
+namespace Paladin.Interop.Extensions;
+
+internal static class ProcessModuleCollectionExtensions
 {
-    public static class ProcessModuleCollectionExtensions
+    internal static bool Any(this ProcessModuleCollection collection, Func<ProcessModule, bool> predicate)
     {
-        public static bool Any(this ProcessModuleCollection collection, Func<ProcessModule, bool> predicate)
+        for (var i = 0; i < collection.Count; i++)
         {
-            for (var i = 0; i < collection.Count; i++)
+            if (predicate(collection[i]))
             {
-                if (predicate(collection[i]))
-                {
-                    return true;
-                }
+                return true;
             }
-
-            return false;
         }
+
+        return false;
     }
 }

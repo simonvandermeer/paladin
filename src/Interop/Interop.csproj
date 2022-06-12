@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <Target Name="protogen" BeforeTargets="BeforeBuild">
-    <Exec Command="dotnet protogen *.proto --proto_path=$(SolutionDir)/IpcProtocol --csharp_out=$(ProjectDir)/Ipc/Models/Generated" />
+    <Exec Command="dotnet protogen *.proto --proto_path=$(SolutionDir)/IpcProtocol --csharp_out=$(ProjectDir)/InterProcessCommunication/Models/Generated" />
   </Target>
 
   <ItemGroup>
